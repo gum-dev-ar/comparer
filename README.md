@@ -1,6 +1,6 @@
 # Comparer
 
-This package allows you to make comparisons between two generic values and override the default behavoir of go comparison operators.
+This package allows you to make comparisons between two generic values and override the default behavior of go comparison operators.
 
 ## Installation
 
@@ -10,13 +10,13 @@ $ go get github.com/gum-dev-ar/comparer
 
 ## Usage
 
-The `c.Equal(x, y)` method reports whether x and y are equal. The default behaviour is the same as the [reflect.DeepEqual](https://golang.org/pkg/reflect/#DeepEqual) function.
+The `c.Equal(x, y)` method reports whether x and y are equal. The default behavior is the same as the [reflect.DeepEqual](https://golang.org/pkg/reflect/#DeepEqual) function.
 
 The `c.Compare(x, y)` method returns an integer comparing the x and y, and a boolean indicating if the two values are comparable. The result will be 0 if x == y, -1 if x < y, and +1 if x > y.
 
 ### Default comparer example
 
-In this example we use a default comparer to illustrate the use of the provided interfaces.
+In this example, we use a default comparer to illustrate the use of the provided interfaces.
 
 ```golang
 package main
