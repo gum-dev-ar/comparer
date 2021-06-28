@@ -74,7 +74,7 @@ var groups = map[string][]tc{
 		{nil, map[string]int(nil)},
 		{nil, map[string]int{}},
 		{nil, map[string]int{"A": 1, "B": 2}},
-		{map[string]int(nil), map[string]int{}}, //CHECK
+		{map[string]int(nil), map[string]int{}},
 		{map[string]int(nil), map[string]int{"A": 1, "B": 2}},
 		{map[string]int{}, map[string]int{"A": 1, "B": 2}},
 		{map[string]int{"A": 1, "B": 2}, map[string]int{"C": 1, "D": 2}},
@@ -129,23 +129,23 @@ var groups = map[string][]tc{
 func TestEqual(t *testing.T) {
 	c := comparer.Default()
 
+	run := func(t *testing.T, a interface{}, b interface{}, e bool, m string) {
+		if c.Equal(a, b) != e {
+			t.Errorf(m)
+		}
+	}
+
 	for name, cases := range groups {
 		t.Run(name, func(t *testing.T) {
 			for _, tc := range cases {
 				t.Run(fmt.Sprintf("comparer.Equal(%+v, %+v)", tc.a, tc.a), func(t *testing.T) {
-					if !c.Equal(tc.a, tc.a) {
-						t.Errorf("The values should be equal")
-					}
+					run(t, tc.a, tc.a, true, "The values should be equal")
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(%+v, %+v)", tc.a, tc.b), func(t *testing.T) {
-					if c.Equal(tc.a, tc.b) {
-						t.Errorf("The values should not be equal")
-					}
+					run(t, tc.a, tc.b, false, "The values should not be equal")
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(%+v, %+v)", tc.b, tc.a), func(t *testing.T) {
-					if c.Equal(tc.b, tc.a) {
-						t.Errorf("The values should not be equal")
-					}
+					run(t, tc.b, tc.a, false, "The values should not be equal")
 				})
 			}
 		})
