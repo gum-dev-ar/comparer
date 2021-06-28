@@ -2,6 +2,7 @@ package comparer_test
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/gum-dev-ar/comparer"
@@ -129,9 +130,13 @@ var groups = map[string][]tc{
 func TestEqual(t *testing.T) {
 	c := comparer.Default()
 
-	run := func(t *testing.T, a interface{}, b interface{}, e bool, m string) {
+	run := func(t *testing.T, a interface{}, b interface{}, e bool) {
 		if c.Equal(a, b) != e {
-			t.Errorf(m)
+			if e {
+				t.Errorf("The values should be equal")
+			} else {
+				t.Errorf("The values should not be equal")
+			}
 		}
 	}
 
@@ -139,13 +144,13 @@ func TestEqual(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			for _, tc := range cases {
 				t.Run(fmt.Sprintf("comparer.Equal(%+v, %+v)", tc.a, tc.a), func(t *testing.T) {
-					run(t, tc.a, tc.a, true, "The values should be equal")
+					run(t, tc.a, tc.a, reflect.DeepEqual(tc.a, tc.a))
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(%+v, %+v)", tc.a, tc.b), func(t *testing.T) {
-					run(t, tc.a, tc.b, false, "The values should not be equal")
+					run(t, tc.a, tc.b, reflect.DeepEqual(tc.a, tc.b))
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(%+v, %+v)", tc.b, tc.a), func(t *testing.T) {
-					run(t, tc.b, tc.a, false, "The values should not be equal")
+					run(t, tc.b, tc.a, reflect.DeepEqual(tc.b, tc.a))
 				})
 			}
 		})
