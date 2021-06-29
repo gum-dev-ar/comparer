@@ -202,8 +202,8 @@ var equal = map[string][]etc{
 	},
 }
 
-func TestDefaultCompareDifferent(t *testing.T) {
-	c := comparer.Default()
+func TestDefaultCompare(t *testing.T) {
+	c := comparer.New()
 
 	run := func(t *testing.T, a interface{}, b interface{}, expected int, isComparable bool) {
 		comparison, comparable := c.Compare(a, b)
@@ -261,7 +261,7 @@ func TestDefaultCompareDifferent(t *testing.T) {
 }
 
 func TestDefaultEqual(t *testing.T) {
-	c := comparer.Default()
+	c := comparer.New()
 
 	run := func(t *testing.T, a interface{}, b interface{}) {
 		e := reflect.DeepEqual(a, b)

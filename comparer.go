@@ -6,22 +6,25 @@ import (
 	"strings"
 )
 
+type Config func(*Comparer)
 type Comparator func(string, interface{}, interface{}) (int, bool)
 
 type Comparer struct {
 	c Comparator
 }
 
-func Default() *Comparer {
+func ConfigComparator(comparator Comparator) Config {
+	return func(c *Comparer) {
+		c.c = comparator
+	}
+}
+
+func New(...Config) *Comparer {
 	return &Comparer{
 		c: func(p string, l interface{}, r interface{}) (int, bool) {
 			return 0, false
 		},
 	}
-}
-
-func Custom(comparator Comparator) *Comparer {
-	return &Comparer{c: comparator}
 }
 
 func (c *Comparer) Compare(left interface{}, right interface{}) (int, bool) {
