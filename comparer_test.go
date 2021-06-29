@@ -130,113 +130,130 @@ var different = map[string][]dtc{
 }
 
 type etc struct {
-	a interface{}
-	b interface{}
+	a          interface{}
+	b          interface{}
+	comparable bool
 }
 
 var equal = map[string][]etc{
 	"Array": {
-		{[2]int{1, 2}, [2]int{1, 2}},
+		{[2]int{1, 2}, [2]int{1, 2}, false},
 	},
 	"Bool": {
-		{true, true},
-		{false, false},
+		{true, true, false},
+		{false, false, false},
 	},
 	"Float32": {
-		{float32(0.2), float32(0.2)},
-		{float32(-3.2), float32(-3.2)},
+		{float32(0.2), float32(0.2), true},
+		{float32(-3.2), float32(-3.2), true},
 	},
 	"Float64": {
-		{float64(0.2), float64(0.2)},
-		{float64(-3.2), float64(-3.2)},
+		{float64(0.2), float64(0.2), true},
+		{float64(-3.2), float64(-3.2), true},
 	},
 	"Int": {
-		{int(1), int(1)},
-		{int(-1), int(-1)},
+		{int(1), int(1), true},
+		{int(-1), int(-1), true},
 	},
 	"Int8": {
-		{int8(1), int8(1)},
-		{int8(-1), int8(-1)},
+		{int8(1), int8(1), true},
+		{int8(-1), int8(-1), true},
 	},
 	"Int16": {
-		{int16(1), int16(1)},
-		{int16(-1), int16(-1)},
+		{int16(1), int16(1), true},
+		{int16(-1), int16(-1), true},
 	},
 	"Int32": {
-		{int32(1), int32(1)},
-		{int32(-1), int32(-1)},
+		{int32(1), int32(1), true},
+		{int32(-1), int32(-1), true},
 	},
 	"Int64": {
-		{int64(1), int64(1)},
-		{int64(-1), int64(-1)},
+		{int64(1), int64(1), true},
+		{int64(-1), int64(-1), true},
 	},
 	"Map": {
-		{map[string]int{"A": 1, "B": 2}, map[string]int{"A": 1, "B": 2}},
+		{map[string]int{"A": 1, "B": 2}, map[string]int{"A": 1, "B": 2}, false},
 	},
 	"Slice": {
-		{[]int{1, 2}, []int{1, 2}},
+		{[]int{1, 2}, []int{1, 2}, false},
 	},
 	"String": {
-		{"test1", "test1"},
-		{"Test1", "Test1"},
-		{"TEST1", "TEST1"},
+		{"test1", "test1", true},
+		{"Test1", "Test1", true},
+		{"TEST1", "TEST1", true},
 	},
 	"Struct": {
-		{es1{1, "A"}, es1{1, "A"}},
+		{es1{1, "A"}, es1{1, "A"}, false},
 	},
 	"Uint": {
-		{uint(1), uint(1)},
+		{uint(1), uint(1), true},
 	},
 	"Uint8": {
-		{uint8(1), uint8(1)},
+		{uint8(1), uint8(1), true},
 	},
 	"Uint16": {
-		{uint16(1), uint16(1)},
+		{uint16(1), uint16(1), true},
 	},
 	"Uint32": {
-		{uint32(1), uint32(1)},
+		{uint32(1), uint32(1), true},
 	},
 	"Uint64": {
-		{uint64(1), uint64(1)},
+		{uint64(1), uint64(1), true},
 	},
 }
 
 func TestDefaultCompareDifferent(t *testing.T) {
 	c := comparer.Default()
 
+	run := func(t *testing.T, a interface{}, b interface{}, expected int, isComparable bool) {
+		comparison, comparable := c.Compare(a, b)
+		if comparable != isComparable {
+			if isComparable {
+				t.Errorf("The values should be comparable")
+			} else {
+				t.Errorf("The values should not be comparable")
+			}
+		} else if comparable && comparison != expected {
+			if expected < 0 {
+				t.Errorf("The value %+v shoud be greater than the value %+v", b, a)
+			} else if expected > 0 {
+				t.Errorf("The value %+v shoud be greater than the value %+v", a, b)
+			} else {
+				t.Errorf("The values should be equal")
+			}
+		}
+	}
+
 	for name, cases := range different {
 		t.Run(name, func(t *testing.T) {
 			for _, tc := range cases {
 				t.Run(fmt.Sprintf("comparer.Compare(%+v,%+v)", tc.min, tc.max), func(t *testing.T) {
-					comparison, comparable := c.Compare(tc.min, tc.max)
-					if comparable != tc.comparable {
-						t.Errorf("The values should not be comparable")
-					} else if comparable && comparison >= 0 {
-						t.Errorf("The value %+v shoud be greater than the value %+v", tc.max, tc.min)
-					}
+					run(t, tc.min, tc.max, -1, tc.comparable)
 				})
 				t.Run(fmt.Sprintf("comparer.Compare(%+v,%+v)", tc.max, tc.min), func(t *testing.T) {
-					comparison, comparable := c.Compare(tc.max, tc.min)
-					if comparable != tc.comparable {
-						t.Errorf("The values should not be comparable")
-					} else if comparable && comparison <= 0 {
-						t.Errorf("The value %+v shoud be greater than the value %+v", tc.max, tc.min)
-					}
+					run(t, tc.max, tc.min, 1, tc.comparable)
 				})
 				t.Run(fmt.Sprintf("comparer.Compare(&%+v,%+v)", &tc.min, tc.max), func(t *testing.T) {
-					if _, comparable := c.Compare(&tc.min, tc.max); comparable {
-						t.Errorf("The values should not be comparable")
-					}
+					run(t, &tc.min, tc.max, 0, false)
 				})
 				t.Run(fmt.Sprintf("comparer.Compare(%+v,&%+v)", tc.min, &tc.max), func(t *testing.T) {
-					if _, comparable := c.Compare(tc.min, &tc.max); comparable {
-						t.Errorf("The values should not be comparable")
-					}
+					run(t, tc.min, &tc.max, 0, false)
 				})
 				t.Run(fmt.Sprintf("comparer.Compare(&%+v,&%+v)", &tc.min, &tc.max), func(t *testing.T) {
-					if _, comparable := c.Compare(&tc.min, &tc.max); comparable {
-						t.Errorf("The values should not be comparable")
-					}
+					run(t, &tc.max, &tc.min, 0, false)
+				})
+			}
+		})
+	}
+
+	for name, cases := range equal {
+		t.Run(name, func(t *testing.T) {
+			for _, tc := range cases {
+				t.Run(fmt.Sprintf("comparer.Compare(%+v,%+v)", tc.a, tc.b), func(t *testing.T) {
+					run(t, tc.a, tc.b, 0, tc.comparable)
+				})
+				t.Run(fmt.Sprintf("comparer.Compare(%+v,%+v)", tc.b, tc.a), func(t *testing.T) {
+					run(t, tc.b, tc.a, 0, tc.comparable)
 				})
 			}
 		})
