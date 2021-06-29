@@ -19,12 +19,17 @@ func ConfigComparator(comparator Comparator) Config {
 	}
 }
 
-func New(...Config) *Comparer {
-	return &Comparer{
-		c: func(p string, l interface{}, r interface{}) (int, bool) {
-			return 0, false
-		},
+func New(configurations ...Config) *Comparer {
+	c := Comparer{}
+	for _, config := range configurations {
+		config(&c)
 	}
+	if c.c == nil {
+		c.c = func(p string, l interface{}, r interface{}) (int, bool) {
+			return 0, false
+		}
+	}
+	return &c
 }
 
 func (c *Comparer) Compare(left interface{}, right interface{}) (int, bool) {
