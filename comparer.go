@@ -25,11 +25,7 @@ func Custom(comparator Comparator) *Comparer {
 }
 
 func (c *Comparer) Compare(left interface{}, right interface{}) (int, bool) {
-	if comparison, comparable := c.c("", left, right); comparable {
-		return comparison, comparable
-	} else {
-		return c.compare(reflect.ValueOf(left), reflect.ValueOf(right))
-	}
+	return c.compare(reflect.ValueOf(left), reflect.ValueOf(right))
 }
 
 func (c *Comparer) Equal(left interface{}, right interface{}) bool {
@@ -37,7 +33,11 @@ func (c *Comparer) Equal(left interface{}, right interface{}) bool {
 }
 
 func (c *Comparer) compare(left reflect.Value, right reflect.Value) (int, bool) {
-	if left.Type() != right.Type() {
+	if !left.IsValid() || !right.IsValid() {
+		return 0, false
+	} else if comparison, comparable := c.c("", c.value(left), c.value(right)); comparable {
+		return comparison, comparable
+	} else if left.Type() != right.Type() {
 		return 0, false
 	}
 
