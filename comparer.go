@@ -42,14 +42,6 @@ func (c *Comparer) compare(left reflect.Value, right reflect.Value) (int, bool) 
 	}
 
 	switch left.Kind() {
-	case reflect.Bool:
-		if left.Bool() == right.Bool() {
-			return 0, true
-		} else if left.Bool() {
-			return 1, true
-		} else {
-			return -1, true
-		}
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		if left.Int() < right.Int() {
 			return -1, true
