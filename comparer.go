@@ -99,6 +99,8 @@ func (c *Comparer) equal(path string, left reflect.Value, right reflect.Value) b
 			}
 		}
 		return true
+	case reflect.Interface:
+		return c.equal(path, left.Elem(), right.Elem())
 	case reflect.Map:
 		if left.IsNil() != right.IsNil() {
 			return false
@@ -113,6 +115,8 @@ func (c *Comparer) equal(path string, left reflect.Value, right reflect.Value) b
 			}
 		}
 		return true
+	case reflect.Ptr:
+		return c.equal(path, left.Elem(), right.Elem())
 	case reflect.Slice:
 		if left.IsNil() != right.IsNil() {
 			return false

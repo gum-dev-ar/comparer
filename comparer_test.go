@@ -114,8 +114,9 @@ var cdifferent = map[string][]dtc{
 	},
 	"Struct": {
 		{nil, es1{1, "A"}, false},
-		{es1{1, "A"}, es2{1, "A"}, false},
-		{es1{1, "A"}, es1{1, "B"}, false},
+		{es1{}, es1{1, "A"}, false},
+		{es1{1, "test1"}, es2{1, "test1"}, false},
+		{es1{1, "test1"}, es1{1, "test2"}, false},
 	},
 	"Uint": {
 		{nil, uint(1), false},
@@ -189,7 +190,11 @@ var cequal = map[string][]etc{
 		{"TEST1", "test1", true},
 	},
 	"Struct": {
-		{es1{1, "A"}, es1{1, "A"}, false},
+		{es1{1, "test1"}, es1{1, "test1"}, false},
+		{es1{1, "Test1"}, es1{1, "Test1"}, false},
+		{es1{1, "TEST1"}, es1{1, "TEST1"}, false},
+		{es1{1, "Test1"}, es1{1, "test1"}, false},
+		{es1{1, "TEST1"}, es1{1, "test1"}, false},
 	},
 	"Uint": {
 		{uint(1), uint(1), true},
@@ -500,15 +505,9 @@ func TestCustomEqual(t *testing.T) {
 	config := comparer.ConfigComparator(comparator)
 	c := comparer.New(config)
 
-	run := func(t *testing.T, a interface{}, b interface{}) {
-		e := reflect.DeepEqual(a, b)
-		sa, oka := convert(a)
-		sb, okb := convert(b)
-		if oka && okb {
-			e = strings.EqualFold(sa, sb)
-		}
-		if c.Equal(a, b) != e {
-			if e {
+	run := func(t *testing.T, a interface{}, b interface{}, equal bool) {
+		if c.Equal(a, b) != equal {
+			if equal {
 				t.Errorf("The values should be equal")
 			} else {
 				t.Errorf("The values should not be equal")
@@ -520,22 +519,22 @@ func TestCustomEqual(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			for _, tc := range cases {
 				t.Run(fmt.Sprintf("comparer.Equal(%+v,%+v)", tc.min, tc.max), func(t *testing.T) {
-					run(t, tc.min, tc.max)
+					run(t, tc.min, tc.max, false)
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(%+v,%+v)", tc.max, tc.min), func(t *testing.T) {
-					run(t, tc.max, tc.min)
+					run(t, tc.max, tc.min, false)
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(&%+v,%+v)", tc.min, tc.max), func(t *testing.T) {
-					run(t, &tc.min, tc.max)
+					run(t, &tc.min, tc.max, false)
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(%+v,&%+v)", tc.max, tc.min), func(t *testing.T) {
-					run(t, tc.max, &tc.min)
+					run(t, tc.max, &tc.min, false)
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(&%+v,&%+v)", tc.min, tc.max), func(t *testing.T) {
-					run(t, &tc.min, &tc.max)
+					run(t, &tc.min, &tc.max, false)
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(&%+v,&%+v)", tc.max, tc.min), func(t *testing.T) {
-					run(t, &tc.max, &tc.min)
+					run(t, &tc.max, &tc.min, false)
 				})
 			}
 		})
@@ -545,22 +544,22 @@ func TestCustomEqual(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			for _, tc := range cases {
 				t.Run(fmt.Sprintf("comparer.Equal(%+v,%+v)", tc.a, tc.b), func(t *testing.T) {
-					run(t, tc.a, tc.b)
+					run(t, tc.a, tc.b, true)
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(%+v,%+v)", tc.b, tc.a), func(t *testing.T) {
-					run(t, tc.b, tc.a)
+					run(t, tc.b, tc.a, true)
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(&%+v,%+v)", tc.a, tc.b), func(t *testing.T) {
-					run(t, &tc.a, tc.b)
+					run(t, &tc.a, tc.b, false)
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(%+v,&%+v)", tc.b, tc.a), func(t *testing.T) {
-					run(t, tc.b, &tc.a)
+					run(t, tc.b, &tc.a, false)
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(&%+v,&%+v)", tc.a, tc.b), func(t *testing.T) {
-					run(t, &tc.a, &tc.b)
+					run(t, &tc.a, &tc.b, true)
 				})
 				t.Run(fmt.Sprintf("comparer.Equal(&%+v,&%+v)", tc.b, tc.a), func(t *testing.T) {
-					run(t, &tc.b, &tc.a)
+					run(t, &tc.b, &tc.a, true)
 				})
 			}
 		})
@@ -639,7 +638,7 @@ func TestDefaultEqual(t *testing.T) {
 		}
 	}
 
-	/*for name, cases := range ddifferent {
+	for name, cases := range ddifferent {
 		t.Run(name, func(t *testing.T) {
 			for _, tc := range cases {
 				t.Run(fmt.Sprintf("comparer.Equal(%+v,%+v)", tc.min, tc.max), func(t *testing.T) {
@@ -662,7 +661,7 @@ func TestDefaultEqual(t *testing.T) {
 				})
 			}
 		})
-	}*/
+	}
 
 	for name, cases := range dequal {
 		t.Run(name, func(t *testing.T) {
