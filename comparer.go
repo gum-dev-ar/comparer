@@ -13,7 +13,7 @@ type Comparer struct {
 	c Comparator
 }
 
-func ConfigComparator(comparator Comparator) Config {
+func CustomComparator(comparator Comparator) Config {
 	return func(c *Comparer) {
 		c.c = comparator
 	}

@@ -453,7 +453,7 @@ func TestCustomCompare(t *testing.T) {
 		return strings.Compare(sa, sb), true
 	}
 
-	config := comparer.ConfigComparator(comparator)
+	config := comparer.CustomComparator(comparator)
 	c := comparer.New(config)
 
 	run := func(t *testing.T, a interface{}, b interface{}, expected int, isComparable bool) {
@@ -536,7 +536,7 @@ func TestCustomEqual(t *testing.T) {
 		return strings.Compare(sa, sb), true
 	}
 
-	config := comparer.ConfigComparator(comparator)
+	config := comparer.CustomComparator(comparator)
 	c := comparer.New(config)
 
 	run := func(t *testing.T, a interface{}, b interface{}, equal bool) {
