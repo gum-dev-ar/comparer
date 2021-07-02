@@ -220,6 +220,9 @@ var ddifferent = map[string][]dtc{
 		{[2]int{1, 2}, [2]int{3, 4}, false},
 		{[2]int{1, 2}, [2]int{2, 1}, false},
 		{[2]int{1}, [2]int{1, 2}, false},
+		{[2]es1{{1, "test1"}, {2, "test2"}}, [2]es1{{1, "test1"}, {3, "test3"}}, false},
+		{[2]es1{{1, "test1"}, {2, "test2"}}, [2]es2{{1, "test1"}, {2, "test2"}}, false},
+		{[2]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, [2]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{5, "test5"}}}, false},
 	},
 	"Bool": {
 		{nil, true, false},
@@ -326,6 +329,8 @@ var ddifferent = map[string][]dtc{
 var dequal = map[string][]etc{
 	"Array": {
 		{[2]int{1, 2}, [2]int{1, 2}, false},
+		{[2]es1{{1, "test1"}, {2, "test2"}}, [2]es1{{1, "test1"}, {2, "test2"}}, false},
+		{[2]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, [2]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, false},
 	},
 	"Bool": {
 		{true, true, false},
