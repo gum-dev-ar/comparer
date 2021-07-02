@@ -108,6 +108,9 @@ var cdifferent = map[string][]dtc{
 		{[]int{1, 2}, []int{3, 4}, false},
 		{[]int{1, 2}, []int{2, 1}, false},
 		{[]int{1}, []int{1, 2}, false},
+		{[]es1{{1, "test1"}, {2, "test2"}}, []es1{{1, "test1"}, {3, "test3"}}, false},
+		{[]es1{{1, "test1"}, {2, "test2"}}, []es2{{1, "test1"}, {2, "test2"}}, false},
+		{[]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, []es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{5, "test5"}}}, false},
 	},
 	"String": {
 		{nil, "test1", false},
@@ -190,6 +193,12 @@ var cequal = map[string][]etc{
 	},
 	"Slice": {
 		{[]int{1, 2}, []int{1, 2}, false},
+		{[]es1{{1, "test1"}, {2, "test2"}}, []es1{{1, "test1"}, {2, "test2"}}, false},
+		{[]es1{{1, "test1"}, {2, "test2"}}, []es1{{1, "Test1"}, {2, "Test2"}}, false},
+		{[]es1{{1, "test1"}, {2, "test2"}}, []es1{{1, "TEST1"}, {2, "TEST2"}}, false},
+		{[]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, []es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, false},
+		{[]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, []es3{{es1{1, "Test1"}, &es2{2, "Test2"}}, {es1{3, "Test3"}, &es2{4, "Test4"}}}, false},
+		{[]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, []es3{{es1{1, "TEST1"}, &es2{2, "TEST2"}}, {es1{3, "TEST3"}, &es2{4, "TEST4"}}}, false},
 	},
 	"String": {
 		{"test1", "test1", true},
@@ -297,6 +306,12 @@ var ddifferent = map[string][]dtc{
 		{[]int{1, 2}, []int{3, 4}, false},
 		{[]int{1, 2}, []int{2, 1}, false},
 		{[]int{1}, []int{1, 2}, false},
+		{[]es1{{1, "test1"}, {2, "test2"}}, []es1{{1, "test1"}, {3, "test3"}}, false},
+		{[]es1{{1, "test1"}, {2, "test2"}}, []es1{{1, "Test1"}, {2, "Test2"}}, false},
+		{[]es1{{1, "test1"}, {2, "test2"}}, []es2{{1, "test1"}, {2, "test2"}}, false},
+		{[]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, []es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{5, "test5"}}}, false},
+		{[]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, []es3{{es1{1, "Test1"}, &es2{2, "Test2"}}, {es1{3, "Test3"}, &es2{4, "Test4"}}}, false},
+		{[]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, []es3{{es1{1, "TEST1"}, &es2{2, "TEST2"}}, {es1{3, "TEST3"}, &es2{4, "TEST4"}}}, false},
 	},
 	"String": {
 		{nil, "test1", false},
@@ -381,6 +396,8 @@ var dequal = map[string][]etc{
 	},
 	"Slice": {
 		{[]int{1, 2}, []int{1, 2}, false},
+		{[]es1{{1, "test1"}, {2, "test2"}}, []es1{{1, "test1"}, {2, "test2"}}, false},
+		{[]es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, []es3{{es1{1, "test1"}, &es2{2, "test2"}}, {es1{3, "test3"}, &es2{4, "test4"}}}, false},
 	},
 	"String": {
 		{"test1", "test1", true},
