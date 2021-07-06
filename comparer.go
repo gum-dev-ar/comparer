@@ -161,37 +161,6 @@ func (c *Comparer) equal(path string, a reflect.Value, b reflect.Value) bool {
 }
 
 func (c *Comparer) value(v reflect.Value) interface{} {
-	switch v.Kind() {
-	case reflect.Bool:
-		return v.Bool()
-	case reflect.Int:
-		return int(v.Int())
-	case reflect.Int8:
-		return int8(v.Int())
-	case reflect.Int16:
-		return int16(v.Int())
-	case reflect.Int32:
-		return int32(v.Int())
-	case reflect.Int64:
-		return v.Int()
-	case reflect.Uint:
-		return uint(v.Uint())
-	case reflect.Uint8:
-		return uint8(v.Uint())
-	case reflect.Uint16:
-		return uint16(v.Uint())
-	case reflect.Uint32:
-		return uint32(v.Uint())
-	case reflect.Uint64:
-		return v.Uint()
-	case reflect.Float32:
-		return float32(v.Float())
-	case reflect.Float64:
-		return v.Float()
-	case reflect.String:
-		return v.String()
-	default:
-		//BUG(kupuka): Panic if try to compare nested structs with unexported fields.
-		return v.Interface()
-	}
+	//BUG(kupuka): Panic if try to compare nested structs with unexported fields.
+	return v.Interface()
 }
