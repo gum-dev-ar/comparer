@@ -1,3 +1,4 @@
+// This package allows you to make comparisons between two generic values and override the default behavior of go comparison operators.
 package comparer
 
 import (
@@ -6,22 +7,31 @@ import (
 	"strings"
 )
 
+// A Config is the function that allows to apply a configuratión to Comparer.
+// It allows creating new configurations in the future without modifying the New signature.
 type Config func(*Comparer)
-type Comparator func(string, interface{}, interface{}) (int, bool)
 
+// A Comparator is the function that allows defining the behavior of the comparisons.
+//
+// Returns an integer comparing two values, and a boolean indicating if the two values are comparable. The result will be 0 if a == b, -1 if a < b, and +1 if a > b.
+type Comparator func(path string, a interface{}, b interface{}) (int, bool)
+
+// A Comparer holds the configurations of the comparison methods.
 type Comparer struct {
 	c Comparator
 }
 
-func CustomComparator(comparator Comparator) Config {
-	return func(c *Comparer) {
-		c.c = comparator
+// CustomComparator returns a new Config that overrides the Comparator function.
+func CustomComparator(c Comparator) Config {
+	return func(comp *Comparer) {
+		comp.c = c
 	}
 }
 
-func New(configurations ...Config) *Comparer {
+// New returns a new Comparer with the provided configuration.
+func New(configs ...Config) *Comparer {
 	c := Comparer{}
-	for _, config := range configurations {
+	for _, config := range configs {
 		config(&c)
 	}
 	if c.c == nil {
@@ -32,119 +42,121 @@ func New(configurations ...Config) *Comparer {
 	return &c
 }
 
-func (c *Comparer) Compare(left interface{}, right interface{}) (int, bool) {
-	return c.compare(reflect.ValueOf(left), reflect.ValueOf(right))
+// Compare returns an integer comparing two values, and a boolean indicating if the two values are comparable. The result will be 0 if a == b, -1 if a < b, and +1 if a > b.
+func (c *Comparer) Compare(a interface{}, b interface{}) (int, bool) {
+	return c.compare(reflect.ValueOf(a), reflect.ValueOf(b))
 }
 
-func (c *Comparer) Equal(left interface{}, right interface{}) bool {
-	return c.equal("", reflect.ValueOf(left), reflect.ValueOf(right))
+// Equal reports whether a and b are equal.
+func (c *Comparer) Equal(a interface{}, b interface{}) bool {
+	return c.equal("", reflect.ValueOf(a), reflect.ValueOf(b))
 }
 
-func (c *Comparer) compare(left reflect.Value, right reflect.Value) (int, bool) {
-	if !left.IsValid() || !right.IsValid() {
+func (c *Comparer) compare(a reflect.Value, b reflect.Value) (int, bool) {
+	if !a.IsValid() || !b.IsValid() {
 		return 0, false
-	} else if comparison, comparable := c.c("", c.value(left), c.value(right)); comparable {
+	} else if comparison, comparable := c.c("", c.value(a), c.value(b)); comparable {
 		return comparison, comparable
-	} else if left.Type() != right.Type() {
+	} else if a.Type() != b.Type() {
 		return 0, false
 	}
 
-	switch left.Kind() {
+	switch a.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		if left.Int() < right.Int() {
+		if a.Int() < b.Int() {
 			return -1, true
-		} else if left.Int() > right.Int() {
+		} else if a.Int() > b.Int() {
 			return 1, true
 		} else {
 			return 0, true
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		if left.Uint() < right.Uint() {
+		if a.Uint() < b.Uint() {
 			return -1, true
-		} else if left.Uint() > right.Uint() {
+		} else if a.Uint() > b.Uint() {
 			return 1, true
 		} else {
 			return 0, true
 		}
 	case reflect.Float32, reflect.Float64:
-		if left.Float() < right.Float() {
+		if a.Float() < b.Float() {
 			return -1, true
-		} else if left.Float() > right.Float() {
+		} else if a.Float() > b.Float() {
 			return 1, true
 		} else {
 			return 0, true
 		}
 	case reflect.String:
-		return strings.Compare(left.String(), right.String()), true
+		return strings.Compare(a.String(), b.String()), true
 	default:
 		return 0, false
 	}
 }
 
-func (c *Comparer) equal(path string, left reflect.Value, right reflect.Value) bool {
-	if !left.IsValid() || !right.IsValid() {
-		return left.IsValid() == right.IsValid()
-	} else if comparison, comparable := c.c(path, c.value(left), c.value(right)); comparable {
+func (c *Comparer) equal(path string, a reflect.Value, b reflect.Value) bool {
+	if !a.IsValid() || !b.IsValid() {
+		return a.IsValid() == b.IsValid()
+	} else if comparison, comparable := c.c(path, c.value(a), c.value(b)); comparable {
 		return comparison == 0
-	} else if left.Type() != right.Type() {
+	} else if a.Type() != b.Type() {
 		return false
 	}
 
-	switch left.Kind() {
+	switch a.Kind() {
 	case reflect.Array:
-		for i := 0; i < left.Len(); i++ {
+		for i := 0; i < a.Len(); i++ {
 			child := path + "[" + fmt.Sprintf("%d", i) + "]"
-			if !c.equal(child, left.Index(i), right.Index(i)) {
+			if !c.equal(child, a.Index(i), b.Index(i)) {
 				return false
 			}
 		}
 		return true
 	case reflect.Interface:
-		return c.equal(path, left.Elem(), right.Elem())
+		return c.equal(path, a.Elem(), b.Elem())
 	case reflect.Map:
-		if left.IsNil() != right.IsNil() {
+		if a.IsNil() != b.IsNil() {
 			return false
 		}
-		if left.Len() != right.Len() {
+		if a.Len() != b.Len() {
 			return false
 		}
-		for _, k := range left.MapKeys() {
+		for _, k := range a.MapKeys() {
 			child := path + "[" + fmt.Sprintf("%v", k.Interface()) + "]"
-			if !c.equal(child, left.MapIndex(k), right.MapIndex(k)) {
+			if !c.equal(child, a.MapIndex(k), b.MapIndex(k)) {
 				return false
 			}
 		}
 		return true
 	case reflect.Ptr:
-		return c.equal(path, left.Elem(), right.Elem())
+		return c.equal(path, a.Elem(), b.Elem())
 	case reflect.Slice:
-		if left.IsNil() != right.IsNil() {
+		if a.IsNil() != b.IsNil() {
 			return false
 		}
-		if left.Len() != right.Len() {
+		if a.Len() != b.Len() {
 			return false
 		}
-		for i := 0; i < left.Len(); i++ {
+		for i := 0; i < a.Len(); i++ {
 			child := path + "[" + fmt.Sprintf("%d", i) + "]"
-			if !c.equal(child, left.Index(i), right.Index(i)) {
+			if !c.equal(child, a.Index(i), b.Index(i)) {
 				return false
 			}
 		}
 		return true
 	case reflect.Struct:
-		for i := 0; i < left.Type().NumField(); i++ {
+		for i := 0; i < a.Type().NumField(); i++ {
 			child := path
 			if child != "" {
 				child += "."
 			}
-			child += left.Type().Field(i).Name
-			if !c.equal(child, left.Field(i), right.Field(i)) {
+			child += a.Type().Field(i).Name
+			if !c.equal(child, a.Field(i), b.Field(i)) {
 				return false
 			}
 		}
 		return true
 	default:
-		return reflect.DeepEqual(c.value(left), c.value(right))
+		return reflect.DeepEqual(c.value(a), c.value(b))
 	}
 }
 
@@ -153,14 +165,18 @@ func (c *Comparer) value(v reflect.Value) interface{} {
 	case reflect.Bool:
 		return v.Bool()
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		//BUG(kupuka): Always returns a int64 if the value is int, int8, int16, int32 or int64.
 		return v.Int()
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		//BUG(kupuka): Always returns a uint64 if the value is uint, uint8, uint16, uint32 or uint64.
 		return v.Uint()
 	case reflect.Float32, reflect.Float64:
+		//BUG(kupuka): Always returns a float64 if the value is float32 or float64.
 		return v.Float()
 	case reflect.String:
 		return v.String()
 	default:
+		//BUG(kupuka): Panic if try to compare nested structs with unexported fields.
 		return v.Interface()
 	}
 }

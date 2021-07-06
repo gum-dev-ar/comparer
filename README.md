@@ -63,6 +63,7 @@ This example will produce the following output.
 2 != 4
 2 < 5
 ```
+
 ### Custom comparer example
 
 In this example, we will define a comparator where all the even numbers are equal to each other and, in the same way, all the odd numbers are equal to each other. On the other hand, the even numbers are greater than the odd ones.
