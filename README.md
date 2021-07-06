@@ -73,12 +73,13 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gum-dev-ar/comparer"
 )
 
-func number(v interface{}) (int64, bool) {
+func number(v interface{}) (int, bool) {
 	switch n := v.(type) {
-	case int64:
+	case int:
 		return n, true
 	default:
 		return 0, false
